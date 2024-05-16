@@ -17,7 +17,6 @@ const Component = dynamic(() => import('@/components/vm-component'), {
 export default function client() {
   const { signedAccountId, wallet } = useStore();
   const [mst2, viewMilestones] = useState('loading...');
-  const [mst, setMilestone] = useState('loading...');
   const [loggedIn, setLoggedIn] = useState(false);
   const [showSpinner, setShowSpinner] = useState(false);
   const [title, setTitle] = useState(null);
@@ -31,6 +30,7 @@ export default function client() {
   const [projectamount, setProjectamount] = useState(null);
   const [projecttitle, setProjecttitle] = useState(null);
   const [milestones, setMilestones] = useState(null);
+  const [applications, viewApplications] = useState('loading...');
   let newproject= new Project;
   newproject.amount=projectamount;
   newproject.title=projecttitle;
@@ -38,19 +38,33 @@ export default function client() {
   newproject.finish=finish;
   newproject.start=start;
   newproject.rating=rating;
-  useEffect(() => {
-    if (!wallet) return;
-
-    wallet.viewMethod({ contractId: project_contract, method: 'viewMilestones' })
-      .then(milestonesData => {
-        setMilestones(milestonesData); // Store result in state
-      })
-      .catch(error => {
-        // Handle any errors here
-        console.error('Error fetching milestones:', error);
-      });
-
-  }, [wallet]);
+  const renderlist_applications = () => {
+    const listItems = [];
+    for (let i = 0; i < applications.length; i++) {
+      
+      listItems.push(
+        <div class="col-sm">
+          <div class="card">
+      <div class="cardbody">
+      <h5 class="card-title">Application {i}</h5>
+      
+        <p  key={i}>
+        Freelancer: {applications[i]}
+        </p>
+        <div hidden={false}>
+          <button onClick={ () =>acknowledgeMilestone(mst2[i].date)}>Assign this Freelancer</button>
+        </div>
+        </div>
+        </div>
+        </div>
+        
+        
+        
+      ) ;
+    }
+    return listItems;
+  };
+  
   useEffect(() => {
     if (!wallet) return;
 
@@ -63,30 +77,62 @@ export default function client() {
   useEffect(() => {
     setLoggedIn(!!signedAccountId);
   }, [signedAccountId]);
-  let milestonestoadd=[];
-  function addMstoList(){
-    milestonestoadd.push(otherMilestone);
-    otherMilestone.amount=0;
-    otherMilestone.finished=false;
-    otherMilestone.description="";
-    otherMilestone.date=Date();
+  useEffect(() => {
+    if (!wallet) return;
 
-  }
+
+    wallet.viewMethod({ contractId: project_contract, method: 'viewApplications' }).then(
+      aps => viewApplications(aps)
+    );
+  }, [wallet]);
+  
   let otherMilestone = new Milestone;
   otherMilestone.amount = amount;
   otherMilestone.date = date;
   otherMilestone.description = description;
   otherMilestone.finished = false;
+
+  let milestonestoadd=otherMilestone;
   const addMilestone = async () => {
     setShowSpinner(true);
-    await wallet.callMethod({ contractId: project_contract, method: 'addMilestone', args: { Milestone: milestonestoadd, title: title } });
+    await wallet.callMethod({ contractId: project_contract, method: 'addMilestone', args: {project_milestone:milestonestoadd}});
     setShowSpinner(false);
   };
-  const renderlist = () => {
+  const acknowledgeMilestone = async (date) => {
+    setShowSpinner(true);
+    await wallet.callMethod({ contractId: project_contract, method: 'acknowledgeMilestone', args: {title:date}});
+    setShowSpinner(false);
+  };
+ 
+  
+    const renderlist = () => {
     const listItems = [];
     for (let i = 0; i < mst2.length; i++) {
       
-      listItems.push(<li class="list-group-item" key={i}>{mst2[i]}</li>);
+      listItems.push(
+        <div class="col-sm">
+          <div class="card">
+      <div class="cardbody">
+      <h5 class="card-title">Milestone {i}</h5>
+      <p key={i}>
+        Amount: {mst2[i].amount}
+        </p>
+        <p  key={i}>
+        Date: {mst2[i].date}
+        </p>
+        <p  key={i}>
+        Description: {mst2[i].description}
+        </p>
+        <div hidden={!mst2[i].finished}>
+          <button onClick={ () =>acknowledgeMilestone(mst2[i].date)}>Acknowledge</button>
+        </div>
+        </div>
+        </div>
+        </div>
+        
+        
+        
+      ) ;
     }
     return listItems;
   };
@@ -141,19 +187,11 @@ export default function client() {
             onChange={t => setTitle(t.target.value)}
           />
 
-          <div>
-            <button className="btn btn-secondary" onClick={addMstoList()}>
-              <span hidden={showSpinner}> Add </span>
-              <i
-                className="spinner-border spinner-border-sm"
-                hidden={!showSpinner}
-              ></i>
-            </button>
-          </div>
+          
 
           <div>
-            <button className="btn btn-secondary" onClick={addMilestone()}>
-              <span hidden={showSpinner}> Add </span>
+            <button className="btn btn-secondary" onClick={addMilestone}>
+              <span hidden={showSpinner}> Add-TEST </span>
               <i
                 className="spinner-border spinner-border-sm"
                 hidden={!showSpinner}
@@ -169,11 +207,14 @@ export default function client() {
           <p className="m-0"> Please login to add milestones </p>
         </div>
       
-      <ul class="list-group"> <h3>Milestones:</h3>
+       <div class="row">
           {renderlist()}
-        </ul>
+       </div>
+       <div class="row">
+          {renderlist_applications()}
+       </div>
         <button onClick={""}>Deploy contract</button>
-
+        
       <div className={styles.grid}>
         <StartFreelancing></StartFreelancing>
       </div>

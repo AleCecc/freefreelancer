@@ -1,8 +1,0 @@
-DEFINE_NEAR_METHOD(Contract)
-DEFINE_NEAR_METHOD(addProject)
-DEFINE_NEAR_METHOD(applyforProject)
-DEFINE_NEAR_METHOD(init)
-DEFINE_NEAR_METHOD(mintToken)
-DEFINE_NEAR_METHOD(viewRatings)
-DEFINE_NEAR_METHOD(viewStartdate)
-DEFINE_NEAR_METHOD(viewappliedProjects)

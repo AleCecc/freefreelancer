@@ -1,0 +1,31 @@
+
+
+near call alececchin.testnet setGreeting '{"json":"json"}' --accountId alececchin.testnet
+
+
+near call alececchin3.testnet assignFreelancer --accountId alececchin3.testnet
+near view alececchin18.testnet viewMilestones
+near call alececchin3.testnet addMilestones '{"amount":"1","description":"test", "date":"27.02.2023","finished":"false"}' --accountId alececchin.testnet
+
+
+<--------------------CREATE ACC-------------------------------------------------->
+near create-account "".testnet --useFaucet
+
+<--------------------DEPLOY-------------------------------------------------->
+near deploy alececchin20.testnet /home/alececc/freefreelancer/coin-flip-examples/contract-ts/build/contract.wasm
+
+<--------------------ADD-------------------------------------------------->
+near call alececchin20.testnet addMilestone '{"amount": 100,"description": "First milestone","date": "2024-05-01","finished":"false"}' --accountId alececchin20.testnet
+
+<--------------------ACKNOWLEDGE-------------------------------------------------->
+near call alececchin19.testnet acknowledgeMilestone --accountId alececchin19.testnet
+
+<--------------------SET FINISH-------------------------------------------------->
+near call alececchin19.testnet finishMilestone '{"key":"1"}'{"amount": 100,"description": "First milestone","date": "2024-05-01","finished":"false"}' --accountId alececchin19.testnet
+
+<--------------------view-------------------------------------------------->
+near view alececchin20.testnet viewMilestones
+
+<--------------------run--------------------------------------------------->
+yarn run
+-> next dev

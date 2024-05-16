@@ -26,11 +26,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/client.js"
-    ],
-    "/freelancer": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/freelancer.js"
     ]
   },
   "ampFirstPages": []

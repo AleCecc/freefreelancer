@@ -52,12 +52,17 @@
   background: rgba(var(--card-rgb), 0);
   border: 1px solid rgba(var(--card-border-rgb), 0);
   transition: background 200ms, border 200ms;
+  min-height: 200px;
+  min-width: 200px;
 }
 
 .card span {
   display: inline-block;
   transition: transform 200ms;
 }
+
+
+
 
 .card h2 {
   font-weight: 600;
