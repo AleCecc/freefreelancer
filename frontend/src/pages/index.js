@@ -10,14 +10,7 @@ export default function Home() {
       <div className={styles.description}> </div>
 
       <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src={Logo}
-          alt="NEAR Logo"
-          width={200}
-          height={200}
-          priority
-        />
+        
         
         
       </div>

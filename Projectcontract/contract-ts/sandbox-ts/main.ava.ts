@@ -1,6 +1,6 @@
 import { Worker, NearAccount } from 'near-workspaces';
 import anyTest, { TestFn } from 'ava';
-import { setDefaultResultOrder } from 'dns';import { Milestone } from '../src/subcontract';
+import { setDefaultResultOrder } from 'dns';import { Milestone } from '../src/subcontract.ts';
  setDefaultResultOrder('ipv4first'); // temp fix for node >v17
 
 // Global context
@@ -53,7 +53,7 @@ test('milestones can be added', async (t) => {
 ];
 
 
-  await root.call(contract,'addMilestones', {ms});
+  await root.call(contract,'addMilestones', {project_milestone:JSON.parse(ms.toString())});
   const result = await root.view('viewMilestones');
   t.is(result,result)
 });

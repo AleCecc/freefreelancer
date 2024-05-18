@@ -7,7 +7,8 @@ import { Project } from '@/components/project';
 import {  StartFreelancing } from '@/components/cards';
 import FreelancerComponents from '../freelancer';
 import { project_contract,token_contract } from '@/components/contract';
-
+import RatingDisplay from '@/components/ratingdisplay';
+import Popuprating from '@/components/popup-rating';
 // Contract that the app will interact with
 const Component = dynamic(() => import('@/components/vm-component'), {
   ssr: false,
@@ -19,18 +20,25 @@ export default function client() {
   const [mst2, viewMilestones] = useState('loading...');
   const [loggedIn, setLoggedIn] = useState(false);
   const [showSpinner, setShowSpinner] = useState(false);
-  const [title, setTitle] = useState(null);
-  const [description, setDescription] = useState(null);
-  const [amount, setAmount] = useState(null);
-  const [date, setDate] = useState(null);
-  const [start, setStart] = useState(null);
-  const [finish, setFinish] = useState(null);
-  const [rating, setRating] = useState(null);
-  const [comment, setComment] = useState(null);
-  const [projectamount, setProjectamount] = useState(null);
-  const [projecttitle, setProjecttitle] = useState(null);
-  const [milestones, setMilestones] = useState(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState("");
+  const [date, setDate] = useState("");
+  const [start, setStart] = useState("");
+  const [finish, setFinish] = useState("");
+  const [rating, setRating] = useState("");
+  const [comment, setComment] = useState("");
+  const [projectamount, setProjectamount] = useState("");
+  const [projecttitle, setProjecttitle] = useState("");
+  const [milestones, setMilestones] = useState("");
   const [applications, viewApplications] = useState('loading...');
+  const [freelancer, setFreelancer] = useState("");
+  const [assigned, setAssigned] = useState(false);
+  const [totalamount, setTotal]= useState(0);
+  
+  
+
+  let showassigned =false;
   let newproject= new Project;
   newproject.amount=projectamount;
   newproject.title=projecttitle;
@@ -43,16 +51,16 @@ export default function client() {
     for (let i = 0; i < applications.length; i++) {
       
       listItems.push(
-        <div class="col-sm">
+        <div class="col-sm"   >
           <div class="card">
       <div class="cardbody">
       <h5 class="card-title">Application {i}</h5>
       
-        <p  key={i}>
+        <p  key={"freelancer"+i}>
         Freelancer: {applications[i]}
         </p>
-        <div hidden={false}>
-          <button onClick={ () =>acknowledgeMilestone(mst2[i].date)}>Assign this Freelancer</button>
+        <div >
+          <button onClick={ () =>assignFreelancer(applications[i])}>Assign this Freelancer</button>
         </div>
         </div>
         </div>
@@ -64,11 +72,16 @@ export default function client() {
     }
     return listItems;
   };
+  useEffect(() => {
+    let tot=0;
+    for(let i =0; i< mst2.length;i++){
+      tot+=Number(mst2[i].amount);
+    }
+    setTotal(tot);
+  });
   
   useEffect(() => {
     if (!wallet) return;
-
-
     wallet.viewMethod({ contractId: project_contract, method: 'viewMilestones' }).then(
       milestones => viewMilestones(milestones)
     );
@@ -85,6 +98,12 @@ export default function client() {
       aps => viewApplications(aps)
     );
   }, [wallet]);
+
+  useEffect(() => {
+    if (!wallet) return;
+    wallet.viewMethod({ contractId: project_contract, method: 'assignedFreelancer' }).then(
+      fl => setFreelancer(fl)).then(fl=>setAssigned(true));
+  }, [wallet]);
   
   let otherMilestone = new Milestone;
   otherMilestone.amount = amount;
@@ -97,11 +116,20 @@ export default function client() {
     setShowSpinner(true);
     await wallet.callMethod({ contractId: project_contract, method: 'addMilestone', args: {project_milestone:milestonestoadd}});
     setShowSpinner(false);
+    
   };
   const acknowledgeMilestone = async (date) => {
     setShowSpinner(true);
     await wallet.callMethod({ contractId: project_contract, method: 'acknowledgeMilestone', args: {title:date}});
     setShowSpinner(false);
+  };
+
+  const assignFreelancer = async (acc) => {
+    setShowSpinner(true);
+    
+    await wallet.callMethod({ contractId: project_contract, method: 'assignFreelancer', args: {accid:acc},gas: '100000000000000'});
+    setShowSpinner(false);
+    
   };
  
   
@@ -114,13 +142,13 @@ export default function client() {
           <div class="card">
       <div class="cardbody">
       <h5 class="card-title">Milestone {i}</h5>
-      <p key={i}>
+      <p key={"amount"+i}>
         Amount: {mst2[i].amount}
         </p>
-        <p  key={i}>
+        <p  key={"date"+i}>
         Date: {mst2[i].date}
         </p>
-        <p  key={i}>
+        <p  key={"description"+i}>
         Description: {mst2[i].description}
         </p>
         <div hidden={!mst2[i].finished}>
@@ -152,8 +180,7 @@ export default function client() {
           Interacting with the contract: &nbsp;
           <code className={styles.code}>{project_contract}</code>
         </p>
-        <p>{title}</p>
-        <p>{amount}</p>
+        
       </div>
       <input
         type="string"
@@ -180,40 +207,34 @@ export default function client() {
       
 
         
-          <input
-            type="string"
-            className="form-control w-20"
-            placeholder="Title of Milestone"
-            onChange={t => setTitle(t.target.value)}
-          />
+          
 
           
 
           <div>
             <button className="btn btn-secondary" onClick={addMilestone}>
-              <span hidden={showSpinner}> Add-TEST </span>
+              <span hidden={showSpinner}> Add a Milestone to the Project </span>
               <i
                 className="spinner-border spinner-border-sm"
                 hidden={!showSpinner}
               ></i>
             </button>
+
           </div>
+        <br></br>
         
-        
-        <div>
-          
-        </div>
+      
         <div className="w-100 text-end align-text-center" hidden={loggedIn}>
           <p className="m-0"> Please login to add milestones </p>
         </div>
-      
        <div class="row">
           {renderlist()}
        </div>
-       <div class="row">
+       <div class="row" hidden={!assigned}>
           {renderlist_applications()}
+         <center><RatingDisplay> </RatingDisplay></center> 
        </div>
-        <button onClick={""}>Deploy contract</button>
+       <Popuprating freelancerName={freelancer} totalamount={totalamount}></Popuprating>
         
       <div className={styles.grid}>
         <StartFreelancing></StartFreelancing>

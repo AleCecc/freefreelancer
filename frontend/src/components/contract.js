@@ -1,2 +1,2 @@
-export let project_contract="test1405v4.testnet";
-export let token_contract="aletokencontract4.testnet";
+export let project_contract="project1805.testnet";
+export let token_contract="token1805.testnet";

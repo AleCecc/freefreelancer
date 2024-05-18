@@ -1466,18 +1466,22 @@ class NearPromise {
   }
 }
 
-var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _dec7, _dec8, _class, _class2;
+var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _dec7, _dec8, _dec9, _dec10, _class, _class2;
 BigInt("1000000000000000000000000");
-let Subcontract = (_dec = NearBindgen({}), _dec2 = initialize(), _dec3 = call({}), _dec4 = call({}), _dec5 = call({}), _dec6 = view(), _dec7 = call({
+class Milestone {}
+class Project {}
+const FIVE_TGAS = BigInt("50000000000000");
+const NO_DEPOSIT = BigInt(0);
+let Subcontract = (_dec = NearBindgen({}), _dec2 = initialize(), _dec3 = call({}), _dec4 = view(), _dec5 = call({}), _dec6 = view(), _dec7 = call({}), _dec8 = view(), _dec9 = call({
   payableFunction: true
-}), _dec8 = call({}), _dec(_class = (_class2 = class Subcontract {
+}), _dec10 = call({}), _dec(_class = (_class2 = class Subcontract {
   milestones = new UnorderedMap("mst-vec");
-  freelancers = new UnorderedMap("flc");
+  freelancer_applications = new UnorderedMap("flc");
   constructor() {
-    this.freelancer_address;
-    this.client_address;
+    this.freelancer_address = "";
+    this.client_address = "";
     this.milestones;
-    this.freelancers;
+    this.freelancer_applications;
   }
   init({
     accountid
@@ -1487,52 +1491,73 @@ let Subcontract = (_dec = NearBindgen({}), _dec2 = initialize(), _dec3 = call({}
   assignFreelancer({
     accid
   }) {
-    currentAccountId();
-    if (currentAccountId = predecessorAccountId) {
-      this.freelancer_address = accid;
+    const user = currentAccountId();
+    let ms = [];
+    let keys = this.milestones._keys;
+    for (let i = 0; i < this.milestones.length; i++) {
+      ms.push(this.milestones.get(keys.get(i)));
     }
+    //if (near.currentAccountId = near.predecessorAccountId) {
+    this.freelancer_address = user;
+    const promise = NearPromise.new("token1805.testnet").functionCall("assignProject", JSON.stringify({
+      project: ms
+    }), NO_DEPOSIT, FIVE_TGAS);
+    return promise.asReturn();
+
+    //}
     //funktioniert  
   }
-  freelancerPropose({}) {
-    let keys = this.freelancers._keys.toArray();
-    let index = keys.length;
-    this.freelancers.set(predecessorAccountId.toString(), index);
-
+  assignedFreelancer({}) {
+    return this.freelancer_address.toString();
+  }
+  freelancerApply({}) {
+    let freelancer = predecessorAccountId();
+    let index = this.freelancer_applications._keys.length;
+    this.freelancer_applications.set(index.toString(), freelancer);
     //funktioniert  
+  }
+  viewApplications({}) {
+    let freelancers = [];
+    let keys = this.freelancer_applications._keys;
+    for (let i = 0; i < this.freelancer_applications.length; i++) {
+      freelancers.push(this.freelancer_applications.get(keys.get(i)));
+    }
+    return freelancers;
   }
   addMilestone({
-    project_milestone,
-    title
+    project_milestone
   }) {
-    this.milestones.set(title, project_milestone);
+    this.milestones.set(project_milestone.date.toString(), project_milestone);
     return "Added successfully";
     //funktioniert  
   }
   viewMilestones({}) {
-    let keys = this.milestones._keys.toArray();
-    //funktioniert
-    //let val =  this.milestones.get("title" as string) as Milestone;
-
-    return keys;
+    let ms = [];
+    let keys = this.milestones._keys;
+    for (let i = 0; i < this.milestones.length; i++) {
+      ms.push(this.milestones.get(keys.get(i)));
+    }
+    return ms;
   }
   acknowledgeMilestone({
-    index
+    title
   }) {
-    this.milestones.remove(index);
-    let mst = this.milestones.get(index);
-    let amt = mst.amount;
-    NearPromise.new(this.freelancer_address.toString()).transfer(BigInt(amt));
+    let mst = this.milestones.get(title);
+    NearPromise.new(this.freelancer_address).transfer(BigInt(mst.amount));
+    this.milestones.remove(title);
     return "Acknowledeged successfully";
     //funktioniert
   }
   finishMilestone({
-    index
+    title
   }) {
-    let newMs = this.milestones.get(index);
+    let newMs = this.milestones.get(title);
     newMs.finished = true;
-    this.milestones.set(index, newMs);
+    this.milestones.remove(title);
+    this.milestones.set(title, newMs);
+    return "Milestone set for approval";
   }
-}, (_applyDecoratedDescriptor(_class2.prototype, "init", [_dec2], Object.getOwnPropertyDescriptor(_class2.prototype, "init"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "assignFreelancer", [_dec3], Object.getOwnPropertyDescriptor(_class2.prototype, "assignFreelancer"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "freelancerPropose", [_dec4], Object.getOwnPropertyDescriptor(_class2.prototype, "freelancerPropose"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "addMilestone", [_dec5], Object.getOwnPropertyDescriptor(_class2.prototype, "addMilestone"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "viewMilestones", [_dec6], Object.getOwnPropertyDescriptor(_class2.prototype, "viewMilestones"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "acknowledgeMilestone", [_dec7], Object.getOwnPropertyDescriptor(_class2.prototype, "acknowledgeMilestone"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "finishMilestone", [_dec8], Object.getOwnPropertyDescriptor(_class2.prototype, "finishMilestone"), _class2.prototype)), _class2)) || _class);
+}, (_applyDecoratedDescriptor(_class2.prototype, "init", [_dec2], Object.getOwnPropertyDescriptor(_class2.prototype, "init"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "assignFreelancer", [_dec3], Object.getOwnPropertyDescriptor(_class2.prototype, "assignFreelancer"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "assignedFreelancer", [_dec4], Object.getOwnPropertyDescriptor(_class2.prototype, "assignedFreelancer"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "freelancerApply", [_dec5], Object.getOwnPropertyDescriptor(_class2.prototype, "freelancerApply"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "viewApplications", [_dec6], Object.getOwnPropertyDescriptor(_class2.prototype, "viewApplications"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "addMilestone", [_dec7], Object.getOwnPropertyDescriptor(_class2.prototype, "addMilestone"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "viewMilestones", [_dec8], Object.getOwnPropertyDescriptor(_class2.prototype, "viewMilestones"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "acknowledgeMilestone", [_dec9], Object.getOwnPropertyDescriptor(_class2.prototype, "acknowledgeMilestone"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "finishMilestone", [_dec10], Object.getOwnPropertyDescriptor(_class2.prototype, "finishMilestone"), _class2.prototype)), _class2)) || _class);
 function finishMilestone() {
   const _state = Subcontract._getState();
   if (!_state && Subcontract._requireInit()) {
@@ -1588,7 +1613,7 @@ function addMilestone() {
   Subcontract._saveToStorage(_contract);
   if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(Subcontract._serialize(_result, true));
 }
-function freelancerPropose() {
+function viewApplications() {
   const _state = Subcontract._getState();
   if (!_state && Subcontract._requireInit()) {
     throw new Error("Contract must be initialized");
@@ -1598,8 +1623,34 @@ function freelancerPropose() {
     Subcontract._reconstruct(_contract, _state);
   }
   const _args = Subcontract._getArgs();
-  const _result = _contract.freelancerPropose(_args);
+  const _result = _contract.viewApplications(_args);
+  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(Subcontract._serialize(_result, true));
+}
+function freelancerApply() {
+  const _state = Subcontract._getState();
+  if (!_state && Subcontract._requireInit()) {
+    throw new Error("Contract must be initialized");
+  }
+  const _contract = Subcontract._create();
+  if (_state) {
+    Subcontract._reconstruct(_contract, _state);
+  }
+  const _args = Subcontract._getArgs();
+  const _result = _contract.freelancerApply(_args);
   Subcontract._saveToStorage(_contract);
+  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(Subcontract._serialize(_result, true));
+}
+function assignedFreelancer() {
+  const _state = Subcontract._getState();
+  if (!_state && Subcontract._requireInit()) {
+    throw new Error("Contract must be initialized");
+  }
+  const _contract = Subcontract._create();
+  if (_state) {
+    Subcontract._reconstruct(_contract, _state);
+  }
+  const _args = Subcontract._getArgs();
+  const _result = _contract.assignedFreelancer(_args);
   if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(Subcontract._serialize(_result, true));
 }
 function assignFreelancer() {
@@ -1628,5 +1679,5 @@ function init() {
   if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(Subcontract._serialize(_result, true));
 }
 
-export { Subcontract, acknowledgeMilestone, addMilestone, assignFreelancer, finishMilestone, freelancerPropose, init, viewMilestones };
+export { Milestone, Project, Subcontract, acknowledgeMilestone, addMilestone, assignFreelancer, assignedFreelancer, finishMilestone, freelancerApply, init, viewApplications, viewMilestones };
 //# sourceMappingURL=contract.js.map

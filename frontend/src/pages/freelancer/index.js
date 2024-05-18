@@ -35,7 +35,7 @@ export default function freelancer() {
     if (!wallet) return;
 
 
-    wallet.viewMethod({ contractId: project_contract, method: 'viewMilestones' }).then(
+    wallet.viewMethod({ contractId: token_contract, method: 'viewProject'}).then(
       ms => setMilestones(ms)
     );
   }, [wallet]);
@@ -80,13 +80,13 @@ export default function freelancer() {
           <div class="card">
       <div class="cardbody">
       <h5 class="card-title">Milestone {i}</h5>
-      <p key={i}>
+      <p key={"amount"+ i}>
         Amount: {milestones[i].amount}
         </p>
-        <p  key={i}>
+        <p  key={"date"+ i}>
         Date: {milestones[i].date}
         </p>
-        <p  key={i}>
+        <p  key={"description"+i}>
         Description: {milestones[i].description}
         </p>
         <div hidden={milestones[i].finished}>
